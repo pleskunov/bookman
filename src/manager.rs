@@ -1,3 +1,26 @@
+/*
+    This file is a part of bookman software.
+
+    This module contains the main logic for all operations.
+
+    Copyright (c) 2025 Pavel Pleskunov.
+
+    bookman is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or (at
+    your option) any later version.
+
+    bookman is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+    USA
+*/
+
 use crate::entry::Bookmark;
 use crate::db_driver;
 use crate::utils;
@@ -45,7 +68,7 @@ pub fn search(conn: &Connection) -> Option<String> {
             let options = SkimOptionsBuilder::default().build().unwrap();
             let (tx, rx): (SkimItemSender, SkimItemReceiver) = skim::prelude::unbounded();
             for bm in &bookmarks {
-                let line = format!("{} | {} | {}", bm.id, bm.name, bm.url);
+                let line = format!("{} | {} | {} | {}", bm.id, bm.name, bm.url, bm.description);
                 let _ = tx.send(Arc::new(line));
             }
             drop(tx);
@@ -119,18 +142,22 @@ pub fn clip(conn: &Connection) {
 }
 
 pub fn import(conn: &Connection, source: &str) {
-    //let prev_id = db_driver::last_id(conn);
-    let imported = parser::parse_bookmarks(source);
+    match parser::parse_bookmarks(source) {
+        Ok(imported) => {
+            for bm in imported {
+                match db_driver::insert_entry(conn, &bm.name, &bm.url, &bm.description) {
+                    Ok(()) => {
+                        continue;
+                    }
+                    Err(err) => {
+                        utils::die("Import error", err);
 
-    for bm in imported {
-        match db_driver::insert_entry(conn, &bm.name, &bm.url, &bm.description) {
-            Ok(()) => {
-                continue;
+                    }
+                }
             }
-            Err(err) => {
-                utils::die("Import error", err);
-
-            }
+        }
+        Err(err) => {
+            utils::parser_error(err);
         }
     }
 }

@@ -1,7 +1,9 @@
 /*
     This file is a part of bookman software.
 
-    It defines how bookman stores bookmarks at runtime.
+    It contains two configuration variables:
+        DB_FILE: path to the database file with bookmarks.
+        DB_PASS: a secret passphrase used to encrypt/open the database.
 
     Copyright (c) 2025 Pavel Pleskunov.
 
@@ -20,11 +22,5 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
     USA
 */
-
-#[derive(Debug)]
-pub struct Bookmark {
-    pub id: i32,
-    pub name: String,
-    pub url: String,
-    pub description: String,
-}
+pub const DB_FILE: &str = ".local/share/bookman/bookmarks.db";
+pub const DB_PASS: &str = "aes256:mysupersecretkey";

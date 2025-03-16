@@ -1,58 +1,69 @@
+/*
+    This file is a part of bookman software.
+
+    Copyright (c) 2025 Pavel Pleskunov.
+
+    bookman is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or (at
+    your option) any later version.
+
+    bookman is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+    USA
+*/
+
 pub mod entry;
 pub mod utils;
 pub mod parser;
 pub mod db_driver;
 pub mod manager;
+pub mod config;
 
-use clap::{Arg, ArgAction, Command};
+use std::env;
+use std::path;
+use crate::parser::Commands;
+use clap::Parser;
 use rusqlite::Connection;
 
 fn main() {
-    let matches = Command::new("Bookmark Manager")
-        .version("1.0")
-        .author("Pavel")
-        .about("CLI Bookmark Manager with encryption")
-        .subcommand(Command::new("add")
-            .about("Add a new bookmark")
-            .arg(Arg::new("clipboard")
-                .short('c')
-                .long("clipboard")
-                .action(ArgAction::SetTrue)))
-        .subcommand(Command::new("search").about("Search bookmarks"))
-        .subcommand(Command::new("edit")
-            .about("Edit a bookmark")
-            .arg(Arg::new("id").required(true)))
-        .subcommand(Command::new("remove")
-            .about("Remove a bookmark")
-            .arg(Arg::new("id").required(true)))
-        .subcommand(Command::new("clip")
-            .about("Copy bookmark URL to clipboard"))
-        .get_matches();
+    let home: String  = env::var("HOME").expect("env variable '$HOME' is not set.");
+    let db_file = path::PathBuf::from(home).join(config::DB_FILE);
 
-    let conn = Connection::open("bookmarks.db").expect("Failed to open database");
+    let conn = Connection::open(db_file).expect("Failed to open database");
 
-    // Encryption
-    conn.pragma_update(None, "key", "aes256:mysupersecretkey").unwrap();
+    // Establish database encryption
+    conn.pragma_update(None, "key", config::DB_PASS).unwrap();
 
     manager::new(&conn);
 
-    match matches.subcommand() {
-        Some(("add", sub_m)) => manager::add(&conn, sub_m.get_flag("clipboard")),
-        Some(("search", _)) => {
+    let cli = parser::Cli::parse();
+    match cli.command {
+        Commands::Add { clipboard } => {
+            manager::add(&conn, clipboard);
+        },
+        Commands::Search => {
             if let Some(url) = manager::search(&conn) {
                 println!("Selected URL: {}", url);
             }
-        }
-        Some(("edit", sub_m)) => {
-            let id: i32 = sub_m.get_one::<String>("id").unwrap().parse().unwrap();
+        },
+        Commands::Edit { id } => {
             manager::edit(&conn, id);
-        }
-        Some(("remove", sub_m)) => {
-            let id: i32 = sub_m.get_one::<String>("id").unwrap().parse().unwrap();
+        },
+        Commands::Remove { id } => {
             manager::remove(&conn, id);
+        },
+        Commands::Clip => {
+            manager::clip(&conn);
+        },
+        Commands::Import { path } => {
+            manager::import(&conn, &path);
         }
-        Some(("clip", _)) => manager::clip(&conn),
-        Some(("import", ))
-        _ => eprintln!("Unknown command"),
-    };
+    }
 }

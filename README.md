@@ -83,7 +83,7 @@ The database is stored at:
 $HOME/.local/share/bookman/bookmarks.db
 ```
 
-The program ensures the directory exists before creating the database.
+The program will automatically create the directory/database at first start.
 
 ## Contributing
 

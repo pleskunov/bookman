@@ -4,12 +4,12 @@ A simple browser-independent CLI Bookmark Manager.
 
 ## Features
 
-- **CLI Interface:** Access and manage bookmarks without leaving the terminal.
-- **Clipboard Support:** Quickly add bookmarks from the clipboard.
-- **Import/Export:** Import bookmarks from `.html` files (Firefox/Chrome migration).
-- **Fuzzy Search:** Supports a fuzzy search in the database.
-- **Notifications:** OS-specfic notifications are supported (e.g., `notify-send` on Linux).
-- **Secure:** Stored bookmarks are secured with AES 256-bit encryption.
+- **Command-Line Access:** Easily manage your bookmarks directly from the terminal.
+- **Clipboard Integration:** Instantly add bookmarks from your clipboard.
+- **Import/Export:** Seamless migration bookmarks from `.html` files (e.g., Firefox/Chrome).
+- **Smart Search:** Find bookmarks quickly with fuzzy search.
+- **Notifications:** Bookman integrates with OS-specific notifications (like `notify-send` on Linux).
+- **Secure:** Your bookmarks are safely encrypted with AES (256-bit).
 
 ## Installation
 

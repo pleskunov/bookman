@@ -26,6 +26,7 @@ pub mod db_driver;
 pub mod manager;
 pub mod config;
 
+use std::fs;
 use std::env;
 use std::path;
 use crate::parser::Commands;
@@ -36,6 +37,13 @@ fn main() {
     let home: String  = env::var("HOME").expect("env variable '$HOME' is not set.");
     let db_file = path::PathBuf::from(home).join(config::DB_FILE);
 
+    // Make sure the db path exists
+    let db_dir = path::Path::new(&db_file).parent().unwrap();
+    if !db_dir.exists() {
+        fs::create_dir_all(db_dir).expect("Failed to create database directory");
+    }
+
+    // Connect to the database
     let conn = Connection::open(db_file).expect("Failed to open database");
 
     // Establish database encryption
@@ -50,7 +58,10 @@ fn main() {
         },
         Commands::Search => {
             if let Some(url) = manager::search(&conn) {
-                println!("Selected URL: {}", url);
+                #[cfg(debug_assertions)]
+                {
+                    println!("Selected URL: {}", url);
+                }
             }
         },
         Commands::Edit { id } => {

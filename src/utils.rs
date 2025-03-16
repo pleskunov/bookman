@@ -26,6 +26,7 @@ use std::process::{self, Command};
 use std::error::Error;
 
 use arboard::Clipboard;
+use reqwest::blocking::get;
 
 pub fn die<E: Into<Box<dyn Error>>>(message: &str, error: E) -> ! {
     eprintln!("\x1b[1;31mError:\x1b[0m {}: {}", message, error.into());
@@ -124,4 +125,10 @@ pub fn prompt_user() -> Option<(String, String, String)> {
     std::io::stdin().read_line(&mut description).unwrap();
 
     return Some((name.clone(), url.clone(), description.clone()));
+}
+
+pub fn fetch_page(url: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let response = get(url)?.text()?;
+
+    Ok(response)
 }

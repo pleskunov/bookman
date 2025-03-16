@@ -95,3 +95,14 @@ pub fn parse_bookmarks(html_file: &str) -> io::Result<Vec<Bookmark>> {
 
     Ok(bookmarks)
 }
+
+pub fn parse_html_text(text: &String) -> Result<String, Box<dyn std::error::Error>> {
+    let document = Html::parse_document(&text); // Parse HTML
+    let selector = Selector::parse("title").unwrap(); // Select `<title>` tag
+
+    if let Some(title) = document.select(&selector).next() {
+        Ok(title.text().collect::<String>().trim().to_string()) // Extract and return text
+    } else {
+        Err("Title not found".into())
+    }
+}

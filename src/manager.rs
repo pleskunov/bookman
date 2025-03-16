@@ -42,8 +42,28 @@ pub fn new(conn: &Connection) {
     }
 }
 
-pub fn add(conn: &Connection, _from_clipboard: bool) {
-    if let Some((name, url, description)) = utils::prompt_user() {
+pub fn add(conn: &Connection, from_clipboard: bool) {
+    if from_clipboard {
+        let name: String;
+        let description = String::from("Fetched");
+
+        let url = utils::copy_from_clipboard();
+        match utils::fetch_page(&url) {
+            Ok(text) => {
+                match parser::parse_html_text(&text) {
+                    Ok(title) => {
+                        name = title.to_string();
+                    }
+                    Err(_err) => {
+                        name = "None".to_string();
+                    }
+                }
+            }
+            Err(_err) => {
+                name = "None".to_string();
+            }
+        }
+
         match db_driver::insert_entry(conn, &name, &url, &description) {
             Ok(()) => {
                 #[cfg(debug_assertions)]
@@ -52,11 +72,25 @@ pub fn add(conn: &Connection, _from_clipboard: bool) {
                 }
             }
             Err(err) => {
-               utils::sql_driver_error(err);
+                utils::sql_driver_error(err);
             }
         }
     } else {
-        utils::user_input_error()
+        if let Some((name, url, description)) = utils::prompt_user() {
+            match db_driver::insert_entry(conn, &name, &url, &description) {
+                Ok(()) => {
+                    #[cfg(debug_assertions)]
+                    {
+                        println!("Bookmark added!");
+                    }
+                }
+                Err(err) => {
+                   utils::sql_driver_error(err);
+                }
+            }
+        } else {
+            utils::user_input_error()
+        }
     }
 }
 

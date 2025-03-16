@@ -7,7 +7,7 @@
 
     bookman is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or (at
+    the Free Software Foundation; either version 3 of the License, or (at
     your option) any later version.
 
     bookman is distributed in the hope that it will be useful, but
@@ -127,7 +127,7 @@ pub fn prompt_user() -> Option<(String, String, String)> {
     return Some((name.clone(), url.clone(), description.clone()));
 }
 
-pub fn fetch_page(url: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub fn fetch_page(url: &str) -> Result<String, Box<dyn Error>> {
     let response = get(url)?.text()?;
 
     Ok(response)

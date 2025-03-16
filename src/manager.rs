@@ -7,7 +7,7 @@
 
     bookman is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or (at
+    the Free Software Foundation; either version 3 of the License, or (at
     your option) any later version.
 
     bookman is distributed in the hope that it will be useful, but
@@ -55,12 +55,12 @@ pub fn add(conn: &Connection, from_clipboard: bool) {
                     Ok(title) => {
                         name = title.to_string();
                     }
-                    Err(_err) => {
+                    Err(_) => {
                         name = "None".to_string();
                     }
                 }
             }
-            Err(_err) => {
+            Err(_) => {
                 name = "None".to_string();
             }
         }

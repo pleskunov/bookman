@@ -8,7 +8,7 @@ A simple browser-independent CLI Bookmark Manager.
 - **Clipboard Support:** Quickly add bookmarks from the clipboard.
 - **Import/Export:** Import bookmarks from `.html` files (Firefox/Chrome migration).
 - **Fuzzy Search:** Supports a fuzzy search in the database.
-- **Notifications:** OS notifications supported (e.g., `notify-send` on Linux).
+- **Notifications:** OS-specfic notifications are supported (e.g., `notify-send` on Linux).
 - **Secure:** Stored bookmarks are secured with AES 256-bit encryption.
 
 ## Installation
@@ -83,7 +83,7 @@ The database is stored at:
 $HOME/.local/share/bookman/bookmarks.db
 ```
 
-The program will automatically create the directory/database at first start.
+The program will automatically create the directory/database at the first start.
 
 ## Contributing
 

@@ -69,3 +69,8 @@ pub fn remove_entry(conn: &Connection, id: i32) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+pub fn last_id(conn: &Connection) -> Option<i64> {
+    conn.query_row("SELECT MAX(id) FROM bookmarks", [], |row| row.get(0))
+        .ok()
+}

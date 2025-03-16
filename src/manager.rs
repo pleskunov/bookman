@@ -1,6 +1,7 @@
 use crate::entry::Bookmark;
 use crate::db_driver;
 use crate::utils;
+use crate::parser;
 
 use rusqlite::Connection;
 use skim::prelude::SkimOptionsBuilder;
@@ -114,5 +115,22 @@ pub fn remove(conn: &Connection, id: i32) {
 pub fn clip(conn: &Connection) {
     if let Some(url) = search(conn) {
         utils::copy_to_clipboard(&url);
+    }
+}
+
+pub fn import(conn: &Connection, source: &str) {
+    //let prev_id = db_driver::last_id(conn);
+    let imported = parser::parse_bookmarks(source);
+
+    for bm in imported {
+        match db_driver::insert_entry(conn, &bm.name, &bm.url, &bm.description) {
+            Ok(()) => {
+                continue;
+            }
+            Err(err) => {
+                utils::die("Import error", err);
+
+            }
+        }
     }
 }

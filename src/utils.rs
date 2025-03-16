@@ -11,11 +11,11 @@ pub fn die<E: Into<Box<dyn Error>>>(message: &str, error: E) -> ! {
 
 pub fn user_input_error() -> ! {
     let err = std::io::Error::new(std::io::ErrorKind::InvalidInput, "Propmt failed!");
-    die("User input error: ", err);
+    die("User input error", err);
 }
 
 pub fn sql_driver_error<E: Into<Box<dyn Error>>>(error: E) -> ! {
-    die("SQL Error: ", error)
+    die("SQL Error", error)
 }
 
 pub fn sleep(seconds: u64) {

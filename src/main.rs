@@ -1,11 +1,11 @@
 pub mod entry;
 pub mod utils;
-//pub mod parser;
+pub mod parser;
 pub mod db_driver;
 pub mod manager;
 
 use clap::{Arg, ArgAction, Command};
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 
 fn main() {
     let matches = Command::new("Bookmark Manager")
@@ -30,6 +30,10 @@ fn main() {
         .get_matches();
 
     let conn = Connection::open("bookmarks.db").expect("Failed to open database");
+
+    // Encryption
+    conn.pragma_update(None, "key", "aes256:mysupersecretkey").unwrap();
+
     manager::new(&conn);
 
     match matches.subcommand() {
@@ -48,6 +52,7 @@ fn main() {
             manager::remove(&conn, id);
         }
         Some(("clip", _)) => manager::clip(&conn),
+        Some(("import", ))
         _ => eprintln!("Unknown command"),
     };
 }

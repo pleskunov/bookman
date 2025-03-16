@@ -25,6 +25,7 @@ pub mod parser;
 pub mod db_driver;
 pub mod manager;
 pub mod config;
+pub mod notify;
 
 use std::fs;
 use std::env;
@@ -60,6 +61,7 @@ fn main() {
             if let Some(url) = manager::search(&conn) {
                 #[cfg(debug_assertions)]
                 {
+                    notify::send_notification("Bookman", &format!("Selected: {}", url));
                     println!("Selected URL: {}", url);
                 }
             }

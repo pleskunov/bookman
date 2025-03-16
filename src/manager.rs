@@ -25,6 +25,7 @@ use crate::entry::Bookmark;
 use crate::db_driver;
 use crate::utils;
 use crate::parser;
+use crate::notify;
 
 use rusqlite::Connection;
 use skim::prelude::SkimOptionsBuilder;
@@ -66,6 +67,7 @@ pub fn add(conn: &Connection, from_clipboard: bool) {
 
         match db_driver::insert_entry(conn, &name, &url, &description) {
             Ok(()) => {
+                notify::send_notification("Bookman", "Bookmark is saved!");
                 #[cfg(debug_assertions)]
                 {
                     println!("Bookmark added!");
@@ -79,6 +81,7 @@ pub fn add(conn: &Connection, from_clipboard: bool) {
         if let Some((name, url, description)) = utils::prompt_user() {
             match db_driver::insert_entry(conn, &name, &url, &description) {
                 Ok(()) => {
+                    notify::send_notification("Bookman", "Bookmark is saved!");
                     #[cfg(debug_assertions)]
                     {
                         println!("Bookmark added!");
@@ -102,7 +105,7 @@ pub fn search(conn: &Connection) -> Option<String> {
             let options = SkimOptionsBuilder::default().build().unwrap();
             let (tx, rx): (SkimItemSender, SkimItemReceiver) = skim::prelude::unbounded();
             for bm in &bookmarks {
-                let line = format!("{} | {} | {} | {}", bm.id, bm.name, bm.url, bm.description);
+                let line = format!("{} | {} | {}", bm.id, bm.name, bm.url);
                 let _ = tx.send(Arc::new(line));
             }
             drop(tx);
@@ -135,6 +138,7 @@ pub fn edit(conn: &Connection, id: i32) {
 
                 match db_driver::update_entry(conn, id, &name, &url, &description) {
                     Ok(()) => {
+                        notify::send_notification("Bookman", "Bookmark is updated!");
                         #[cfg(debug_assertions)]
                         {
                             println!("Bookmark updated!");
@@ -158,6 +162,7 @@ pub fn edit(conn: &Connection, id: i32) {
 pub fn remove(conn: &Connection, id: i32) {
     match db_driver::remove_entry(conn, id) {
         Ok(()) => {
+            notify::send_notification("Bookman", "Bookmark is removed!");
             #[cfg(debug_assertions)]
             {
                 println!("Bookmark removed!");
@@ -171,6 +176,7 @@ pub fn remove(conn: &Connection, id: i32) {
 
 pub fn clip(conn: &Connection) {
     if let Some(url) = search(conn) {
+        notify::send_notification("Bookman", &format!("Copied to clipboard!: {}", url));
         utils::copy_to_clipboard(&url);
     }
 }
